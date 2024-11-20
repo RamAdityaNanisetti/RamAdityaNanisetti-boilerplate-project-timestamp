@@ -30,3 +30,32 @@ app.get("/api/hello", function (req, res) {
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+// app.get("/api", function(req, res){
+//   res.send({unix: req.query.date})
+// });
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: false}));
+
+app.get('/api/:date', function(req, res){
+  var d = req.params['date'];
+  console.log('date:' + d);
+  var timestamp = Date.parse(d);
+  if (isNaN(timestamp) == false) {
+    console.log(d);
+    var date = new Date(d);
+    res.json({unix: new Number(date.getTime()), utc: date.toUTCString()});
+  }else if(/^(\d{13})?$/.test(d)){
+    date = new Date(Number(d));
+    res.json({unix: new Number(date), utc: date.toUTCString()});
+  }
+  else{
+    res.json({ error : "Invalid Date" });
+  }
+})
+
+app.get('/api/', function(req, res){
+  var date = new Date();
+  res.json({unix: new Number(date), utc: date.toUTCString()})
+})
